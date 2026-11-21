@@ -1065,6 +1065,19 @@ button,.chip,.hot,a,summary,label{touch-action:manipulation;-webkit-tap-highligh
 .ictl .irail{flex:1 1 100%;order:5}
 .irail .rs,.irail .rs.prpick{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;gap:4px!important;margin:0!important;grid-template-columns:none!important}
 @media (max-width:900px){table.corpus{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}}
+/* ===== Explain mode ===== */
+.chip.xbtn .ico{font:italic 700 14px Georgia,serif}
+.xnote{display:none;margin:12px 0 0;padding:9px 12px;border-radius:9px;border:1px dashed rgba(210,174,99,.55);background:rgba(210,174,99,.06);font-size:14px;color:var(--bone);align-items:center;gap:10px;flex-wrap:wrap}
+.ibox.xon .xnote{display:flex}
+.xnote .chip{border-radius:8px;min-height:32px;padding:5px 11px;font-size:13px}
+.dsvg .xh{fill:#D2AE63;fill-opacity:.06;stroke:#D2AE63;stroke-opacity:.42;stroke-width:1;stroke-dasharray:2 3;cursor:pointer;transition:fill-opacity .2s;animation:xpulse 1.6s ease 1}
+.dsvg .xh:hover,.dsvg .xh:focus-visible{fill-opacity:.22;stroke-opacity:1;outline:none}
+@keyframes xpulse{0%{fill-opacity:.35}100%{fill-opacity:.05}}
+.xword{font-style:normal!important}
+.xcard .glit{font-size:19px}
+.xrels{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #2C4468}
+.xrels span{font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.xrels .chip,.gback .xrel{border-radius:8px;min-height:32px;padding:5px 10px;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -3379,7 +3392,7 @@ var GUIDE_EL={};
    $$(".hot.tapsel",svg).forEach(function(x){x.classList.remove("tapsel")});h.classList.add("tapsel");
    pan.innerHTML='<span class="caps">'+name+' · you tapped</span><h3>'+head+'</h3>'+(rest?'<p class="q">'+rest+'</p>':'')+'<dl><dt>What this is</dt><dd>One element of the diagram. Its position and colour carry the meaning: read it against the elements around it.</dd><dt>Next</dt><dd>Use the controls above the diagram, or press <b>▶ Walk me through it</b> for a guided tour of every part.</dd></dl>'}
   function snap(){return pan.innerHTML.length+"|"+pan.textContent.slice(0,200)+"|"+svg.innerHTML.length}
-  function watch(e){if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;var h=e.target.closest&&e.target.closest(".hot,[role=button]");if(!h||!svg.contains(h)||h===svg)return;var s0=snap();setTimeout(function(){if(snap()===s0)explain(h)},220)}
+  function watch(e){if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;var h=e.target.closest&&e.target.closest(".hot,[role=button]");if(!h||!svg.contains(h)||h===svg)return;if(h.closest(".xlay,.gwm")||h.classList.contains("gwl")||h.classList.contains("gwh"))return;var s0=snap();setTimeout(function(){if(snap()===s0)explain(h)},220)}
   svg.addEventListener("click",watch,true);svg.addEventListener("keydown",watch,true)})})();
 
 /* ================= TREATISE VIII · INSTRUMENT SHELL: decluttered controls ================= */
@@ -3500,16 +3513,17 @@ function gcardHTML(k){var g=GLO[k];var pair=g.pair&&GLO[g.pair];
  '<div class="gbtns"><button type="button" class="chip gturn">↺ Turn back</button>'+(pair?'<button type="button" class="chip gpair" data-k="'+g.pair+'">'+pair.w+' (“'+pair.en+'”) →</button>':'')+'</div></div></div>'}
 var GOPEN=null;
 function closeG(){if(GOPEN){var o=GOPEN;GOPEN=null;o.classList.add("gout");setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o);var bd=$(".gbd");if(bd&&!$(".gcard"))bd.remove()},220);if(o.__from&&o.__from.focus)try{o.__from.focus({preventScroll:true})}catch(e){}}}
-function openG(k,from,host){if(!GLO[k])return;closeG();var modal=!host;var c=H("div",{class:"gcard"+(modal?" gmodal":""),role:"dialog","aria-modal":modal?"true":"false","aria-label":GLO[k].w+": explainer card"});c.innerHTML=gcardHTML(k);c.__from=from;
+function openG(k,from,host){if(!GLO[k])return;openCard(gcardHTML(k),GLO[k].w,from,host)}
+function openCard(html,label,from,host,cls){closeG();var modal=!host;var c=H("div",{class:"gcard"+(modal?" gmodal":"")+(cls?" "+cls:""),role:"dialog","aria-modal":modal?"true":"false","aria-label":label+": explainer card"});c.innerHTML=html;c.__from=from;
  if(modal){var bd=$(".gbd")||H("div",{class:"gbd"},null,document.body);bd.onclick=closeG;document.body.appendChild(c)}else{host.classList.add("ghost");host.appendChild(c)}
  GOPEN=c;$$(".gturn",c).forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();c.classList.toggle("turned");var f=c.querySelector(c.classList.contains("turned")?".gback .gturn":".gfront .gturn");if(f)setTimeout(function(){f.focus({preventScroll:true})},420)})});
  $$(".gx",c).forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();closeG()})});
- $$(".gpair",c).forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();openG(b.getAttribute("data-k"),from,host)})});
+ $$(".gpair",c).forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();openG(b.getAttribute("data-k"),from,host)})});$$(".xrel",c).forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();openX(b.getAttribute("data-x"),from,host)})});
  c.addEventListener("click",function(e){e.stopPropagation()});
  setTimeout(function(){var f=c.querySelector(".gturn");if(f)f.focus({preventScroll:true})},60);
  if(!modal){var r=c.getBoundingClientRect();if(r.top<70||r.bottom>window.innerHeight)c.scrollIntoView({block:"center",behavior:reduce?"auto":"smooth"})}}
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeG()});
-document.addEventListener("click",function(e){if(GOPEN&&!e.target.closest(".gcard")&&!e.target.closest(".gw")&&!e.target.closest(".gwl"))closeG()});
+document.addEventListener("click",function(e){if(GOPEN&&!e.target.closest(".gcard")&&!e.target.closest(".gw")&&!e.target.closest(".gwl")&&!e.target.closest(".xh"))closeG()});
 function hostFor(el){var box=el.closest&&el.closest(".ibox");if(!box)return null;var sv=box.querySelector(".dgrid svg.dsvg");return sv?sv.parentNode:null}
 
 /* words in HTML text become small inline buttons */
@@ -3528,6 +3542,174 @@ function linkSvgG(svg){$$("text",svg).forEach(function(t){if(t.__g||t.closest(".
 (function(){linkG(document.querySelector("main")||document.body);
  $$("svg.dsvg").forEach(function(svg){var tm=null;function q(){clearTimeout(tm);tm=setTimeout(function(){linkSvgG(svg)},90)}new MutationObserver(q).observe(svg,{childList:true,subtree:true});q()});
  var pend=[],tm=null;new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1&&n.closest&&n.closest("svg"))return;pend.push(n)})});clearTimeout(tm);tm=setTimeout(function(){var a=pend;pend=[];a.forEach(function(n){if(n.isConnected)linkG(n)})},40)}).observe(document.body,{childList:true,subtree:true})})();
+
+/* ================= TREATISE VIII · EXPLAIN MODE: a turning card for every element of the SCAN frame ================= */
+/* Each card: front = what it is, in a sentence, and why it is there; back = what, why, how, the thinking behind it,
+   the parade, the lender's view, common mistakes, and a question. Written in this treatise's own words after Graves. */
+var XPL={
+frame:{t:"The SCAN frame",kind:"The whole diagram",one:"A map for deciding how to decide: two questions, two lines, four domains, four edges.",why:"Different situations need different kinds of decision. The frame tells you which kind you are in before you choose a method.",rel:["red","green","now"],
+ back:[["What it is","SCAN stands for Simple, Complicated, Ambiguous and Not-known. Graves calls it a context-space map: a frame for making sense of a situation and choosing how to act in it. It is not a set of boxes to sort things into once and for all. It is a way of asking, about any issue, two quick questions: is it simple, or not? And how much time do we have before we must act?"],
+ ["Why it exists","Graves built it, from roots going back to 1986, for business at the speed of action: the front line, the help desk, the person on site. Most frameworks are written for consultants with time to think. SCAN puts the moment of action at its centre, because that is where real decisions are made and where most methods stop working."],
+ ["How it works","The vertical axis is time left before a decision must become action, running down to NOW. The horizontal axis runs from certain (it repeats) to uncertain (it may never repeat). Two lines cut the space: the boundary of effective certainty (red) and the transition from plan to action (green). The result is four domains, each with its own tactics, and four edges where work passes between them."],
+ ["The thinking behind it","Graves’s core rule is “don’t mix them up”: rules belong in the Simple, algorithms in the Complicated, guidelines in the Ambiguous, principles in the Not-known. Using a tactic from one domain in another is the commonest cause of failure. The one deliberate exception is the Not-known, where a mismatch can be used on purpose as a reframe."],
+ ["Fractal and recursive","Every real situation contains all four domains at once, at different scales. A receivership is Simple in its notices, Complicated in its valuation, Ambiguous in its letting, and Not-known on the night of the fire. Never say a whole context “is” Simple: say which parts of it are."],
+ ["On the parade","On the first morning the receiver can place every issue on the frame in a few minutes. Most receivers expect three or four issues right of the red line; on most parades it is closer to half."],
+ ["The lender’s view","The frame turns one appointment budget into four honest kinds of money: fixed fees, estimates, experiments and risk. It also shows which parts of the plan rest on certainty that may not exist."],
+ ["Ask","Is this simple, or not? How much time do we have before it must work?"]]},
+C:{t:"Complicated",kind:"Domain · upper left",one:"Certain enough, with time to think: cause and effect can be worked out by analysis.",why:"Graves’s verb here is evaluate, and his tactic type is algorithms. His original label: “Complicated but Controllable”.",rel:["unc","commit","S"],
+ back:[["What it is","The domain of the knowable. The situation repeats well enough that cause and effect can be found, given expertise and time. The answer may be hard to reach, but there is one right answer for the conditions assumed."],
+ ["Why it sits here","Left of the red line, because it repeats enough to analyse. Above the green line, because analysis needs time before commitment. Move it below the line and the analysis cannot finish; move it right of the red line and the analysis has nothing stable to work on."],
+ ["How to work in it","Models, calculations, expert opinion, hard-systems methods. Declare the assumptions. Change one factor at a time. Have results checked by someone else. In Graves’s other maps this is the domain of assertion (decisions from analysis), of the Scientist mode (outer truth), and of the Apprentice, who learns why the rules work."],
+ ["The thinking behind it","Analysis refines existing answers but cannot handle what lies outside its assumptions. So the Complicated has two outflows. Across the edge of commitment it packages its results as simple rules for action, and takes back what actually happened. Across the edge of uncertainty it hands on the questions it cannot settle, and takes back answers firm enough to use. Graves warns that some algorithms with long delay loops cannot be reduced to simple rules at all."],
+ ["On the parade","Title and lease analysis; the valuation on two stated bases; VAT on the option to tax; reading the deed’s powers; the service-charge reconciliation."],
+ ["The lender’s view","Budget these as estimates with a stated variance. Ask for the assumptions in writing: they are where the risk sits."],
+ ["Common mistakes","Treating the knowable as certain at the moment of action, such as reading the valuation to a director on the forecourt. Staying above the line too long, so that analysis replaces action. Commissioning analysis for a question that only a test can answer."],
+ ["Ask","What are the assumptions, and what would change the answer?"]]},
+A:{t:"Ambiguous",kind:"Domain · upper right",one:"Uncertain, with time to think: the answer can be found only by testing.",why:"Graves’s verb here is experiment, and his tactic type is guidelines and patterns. His original label: “Ambiguous but Actionable”.",rel:["unc","inno","C"],
+ back:[["What it is","The domain of the discoverable. The situation does not repeat reliably, so cause and effect are visible only in hindsight. No amount of analysis will settle the question; a well-designed test can."],
+ ["Why it sits here","Right of the red line, because doing the same thing may give different results. Above the green line, because there is still time to try things before the result is needed."],
+ ["How to work in it","Safe-to-fail tests with a budget, a measure and a stop date; patterns and guidelines rather than rules; soft-systems methods; meetings that weigh trade-offs. In Graves’s other maps: decisions of use (from what has been tried), the Technologist mode (outer value: what works here), and the Journeyman, who judges what it depends on."],
+ ["The thinking behind it","Questions arrive here from the Complicated, which cannot answer them. Firm results go back as evidence the analysts can use. Across the other edge, the Ambiguous prepares principles and seeds for the Not-known, and receives ideas and surprises in return. Graves calls the meeting of theory and practice here praxis and pragmatics."],
+ ["On the parade","Will the shops let? The meanwhile licence on unit 3; the soft-market test; the planning pre-application for the upper floors; whether a second agent would do better."],
+ ["The lender’s view","Budget these as a series of time-boxed experiments, each with an exit condition. They buy information, not certainty."],
+ ["Common mistakes","Commissioning more analysis instead of a test. Running experiments without a stop date. The Technologist’s warning phrases: “same as last time”; “the end justifies the means”."],
+ ["Ask","What is the smallest test that would tell us something, and when do we stop?"]]},
+S:{t:"Simple",kind:"Domain · lower left",one:"Certain, and no time to think: follow the rule, quickly and consistently.",why:"Graves’s verb here is enact, and his tactic type is rules. His original label: “Simple and Straightforward”.",rel:["commit","panic","N"],
+ back:[["What it is","The domain of the known. The situation repeats, and the action is already decided. At the moment of action there is no time to analyse, so the work runs on rules, work instructions and action checklists."],
+ ["Why it sits here","Left of the red line, because the context repeats. Below the green line, because it happens during action, at or near NOW."],
+ ["How to work in it","Short, clear rules; work instructions done in order; preventive checks; repetition until the response is automatic. In Graves’s other maps: decisions of belief, the Believer mode (inner truth), and the Trainee, who works to the rules."],
+ ["The thinking behind it","Rules make action fast and consistent, and that is their whole value. Graves insists that the Simple must stay simple: every clause that needs interpretation drags it towards the Complicated. Rules also cannot check themselves, so every rule needs a way out: a mismatch trigger that says “this no longer fits” and sends the work across the edge of panic before damage is done."],
+ ["On the parade","Serve the notices; change the locks on the vacant unit; confirm the insurance; open the account and bank the rent; the weekly preventive visit."],
+ ["The lender’s view","Budget these as fixed fees. If a supposedly simple item keeps overrunning, it is not in the Simple."],
+ ["Common mistakes","Rules running on after the context changed (the café’s rent letter after the bus stop moved). Rule books that grow until no one can use them at speed. No escalation route when the rule does not fit."],
+ ["Ask","What tells someone to stop following this rule?"]]},
+N:{t:"Not-known",kind:"Domain · lower right",one:"Uncertain, and no time to think: act on principle, with skill, in the moment.",why:"Graves’s verb here is explore, and his tactic type is principles. His original label: “Not-known, None-of-the-above”.",rel:["panic","inno","S"],
+ back:[["What it is","The domain of the unique and the real-time. What happens has not happened before in this form, and it is happening now. Nothing can be worked out in advance and there is no time to test. Action has to come from principles, values and skill."],
+ ["Why it sits here","Right of the red line, because it may never repeat. Below the green line, because it happens during action. Graves stresses that it is also the only place where anything genuinely new can be found."],
+ ["How to work in it","A few principles everyone can say from memory (the chaos checklist); calm; open observation; improvisation (“yes, and”); people with the skill to act without a script. In Graves’s other maps: decisions of faith, the Artist mode (inner value), and the Master, who knows how much detail is enough."],
+ ["The thinking behind it","At the moment of action, under pressure, people fall back on habit or reflex: fight (grab an option), flight (retreat into a plan that cannot work in time) or freeze. Graves’s alternative is to stay in the uncertainty long enough for the right choice to show itself, anchored by principles prepared in advance. He calls preparing them seeding the space."],
+ ["On the parade","The night of the fire at 23:10; a tenant in tears on the forecourt; the director arriving at 23:40 with a journalist and a locksmith."],
+ ["The lender’s view","Budget this as risk money with a predefined exit condition. Judge the receiver on the principles they acted on, not on whether a plan was followed."],
+ ["Common mistakes","Reading the rulebook louder (rules freeze here). Analysing at NOW (too late). Grabbing the first answer and declaring the problem solved, which Graves calls solutioneering."],
+ ["Ask","What principles will we act on when nothing fits?"]]},
+red:{t:"Boundary of effective certainty",kind:"Red line · the horizontal axis",one:"Where doing the same thing stops giving the same result.",why:"Left of it, the context repeats and can be controlled. Right of it, it varies, and has to be worked with instead.",rel:["cscale","C","A"],
+ back:[["What it is","The vertical red line that splits the frame into a certain side and an uncertain side. Graves tests it with what he calls the Inverse-Einstein test: on the left, doing the same thing gives the same result; on the right, the same action may give a different result, or you may have to do different things to get the same one."],
+ ["Why it matters","Every method assumes one side or the other. Control, targets, rules and models assume the left. Principles, experiments and skill are for the right. Use a left-side method on the right and it fails without warning."],
+ ["How it moves","Graves says the edge of uncertainty is itself uncertain. It depends on who is doing the work (a master sees more as certain than a trainee), where, and when. It moves with what he calls the variety weather: in calm conditions it sits further right, in a storm it moves left. Managers often imagine it much further right than it is."],
+ ["How to use it","For any task, ask: if this person did this again tomorrow, would they get the same result? If the answer depends on things outside their control, the task is right of the line, whatever the procedure says."],
+ ["On the parade","The rent demand to the café was left of the line until the bus stop moved in week 3. Then the same letter stopped working, and the task crossed the line without changing at all."],
+ ["The lender’s view","Credit processes assume the left. The tasks between the real line and the imagined one are where recoveries leak: managed as certain, actually uncertain."],
+ ["Common mistakes","Treating the line as fixed. Drawing it where you would like it to be. Assuming that because a task is written as a procedure, it is certain."],
+ ["Ask","Who is doing this, and is it certain for them, here and now?"]]},
+green:{t:"Plan ▸ action",kind:"Green line · the vertical axis",one:"The transition from plan to action: above it there is time to think, below it there is not.",why:"Close to action, decisions have to be simplified to rules or principles. The line marks where that change happens.",rel:["now","commit","tscale"],
+ back:[["What it is","The horizontal green line that splits the frame into before action (planning) and during action. The vertical axis measures how much time is left before a decision must be expressed in action."],
+ ["Why it matters","As time runs out, options narrow. Analysis and experiment need time, so they live above the line. Below it, there is only time to follow a rule or act on a principle. Graves adds that deciding to do nothing is still a decision."],
+ ["How it moves","Time pressure moves the line up the frame: much of what could have been analysed now has to simply be done. Calm moves it down."],
+ ["The 2019 reframe","Graves later recast the vertical axis as before, during and after, and renamed the edge on this line the edge of commitment. Crossing it is a commitment: the rules change, there is no going back without abandoning the task, and it becomes personal."],
+ ["On the parade","A Friday-afternoon escape of water in flat 4 moves the line up: there is no time to commission a survey, only to isolate the supply and call the insurer."],
+ ["The lender’s view","Ask how long before each decision must become action. Requests for more analysis are reasonable above the line and dangerous below it."],
+ ["Common mistakes","Planning when the time has gone; acting on reflex when there was time to think."],
+ ["Ask","How long before this has to become action?"]]},
+commit:{t:"Edge of commitment",kind:"Edge · Simple :: Complicated",one:"Plan meets action. Rules go down; what actually happened comes back up.",why:"Graves first called it the edge of action, and renamed it in 2019 to stress that crossing it commits you.",rel:["C","S","green"],
+ back:[["What it is","The edge between the Complicated (above) and the Simple (below), on the certain side of the frame. It is the difference between plan (what we intend to do in the expected conditions) and action (what we actually do in the actual conditions)."],
+ ["What passes across","Downward: the Complicated packages its analysis as simple rules and an actionable plan. Upward: the Simple returns the realities, preferably in near-real time, so the plan can be revised."],
+ ["Why it matters","Graves quotes the old military point that no plan survives first contact with reality. If only the downward flow runs, plans drift away from what is happening. If only the upward flow runs, action has no guidance."],
+ ["How it works in practice","Graves’s example is a help line. Problems that front-line staff cannot solve go up level by level, each further from the customer and with more time to think, and solutions come back down as rules. Every level has its own small version of the same edge."],
+ ["Why “commitment”","In the 2019 reframe Graves wanted to show that crossing this line is not just a hand-off. Once action starts, the rules change, there is no going back without abandoning the task, and responsibility becomes personal."],
+ ["On the parade","The valuation and the deed’s powers become the day-one checklist and the agent’s instructions; the agent’s weekly report comes back up and the plan is revised."],
+ ["The lender’s view","Look for evidence that the plan has actually changed in response to reports. A plan that has never been revised is not being used."],
+ ["Ask","What came back from the site this week, and what did it change in the plan?"]]},
+unc:{t:"Edge of uncertainty",kind:"Edge · Complicated :: Ambiguous",one:"Analysis meets experiment, away from the moment of action.",why:"Questions analysis cannot answer go across to be tested; answers firm enough to use come back.",rel:["C","A","red"],
+ back:[["What it is","The edge between the Complicated and the Ambiguous, above the plan-to-action line. It is the difference between analysis, which refines existing answers, and experiment, which applies questions to contexts not yet understood."],
+ ["What passes across","From the Complicated: any question its algorithms cannot settle. From the Ambiguous: any answer that is, or seems, certain enough for analysis to use."],
+ ["Why it matters","This is where most learning happens. Graves notes that research and development bounce back and forth across it constantly, between the Scientist’s demand for proof and the Technologist’s interest in what works."],
+ ["The thinking behind it","Both sides of this edge are at a distance from action, so there is time to think. That makes it calm compared with its mirror image, the edge of panic, where the same kind of exchange happens at the moment of action under stress."],
+ ["On the parade","The valuer cannot say whether the shops will let. That question goes to the meanwhile licence and the soft-market test; their results come back as evidence the valuer can use."],
+ ["The lender’s view","Ask which questions in the file have been sent for testing rather than more analysis, and what came back."],
+ ["Common mistakes","Demanding certainty from an experiment. Never passing a question across, so analysts guess. Treating a single test result as proof."],
+ ["Ask","Which question here can analysis not answer?"]]},
+inno:{t:"Edge of innovation",kind:"Edge · Ambiguous :: Not-known",one:"Structured experiment meets free exploration. The only route to anything new.",why:"Principles and seeds go into the unknown; ideas, news and surprises come back.",rel:["A","N","panic"],
+ back:[["What it is","The edge between the Ambiguous (above) and the Not-known (below), on the uncertain side of the frame. It is the difference between experiment, which tests hypotheses, and exploration, which goes into the unknown to find ideas and experiences."],
+ ["What passes across","From the Ambiguous: principles that act as anchors or seeds for sensemaking in the real-time unknown. Graves quotes Pasteur: in the field of observation, chance favours the prepared mind. From the Not-known: ideas, information and news that can be used in new experiments."],
+ ["Why it matters","Graves is clear that the only place anything new can be found is in the Not-known. To innovate, people must be willing to become comfortable with being uncomfortable, and to work with the unknown in real time, not only from a safe distance."],
+ ["The thinking behind it","Going into the unknown from here, deliberately and away from run-time pressure, is calm: there is a frisson of fear, but it is chosen. Being thrown into it at run time across the edge of panic is a different experience entirely. Seeding the space in advance is what makes the second survivable."],
+ ["On the parade","What the team learns becomes principles for the people on site. What they meet that nobody planned (the café’s evening trade, the bus-route change) comes back as new ideas to test."],
+ ["The lender’s view","Ask what the receiver has noticed that nobody planned for, and what they will test because of it."],
+ ["Common mistakes","Exploring without seeds, so nothing useful is noticed. Dismissing surprises as noise. Treating every surprise as a crisis."],
+ ["Ask","What did we notice that nobody planned, and what will we test because of it?"]]},
+panic:{t:"Edge of panic",kind:"Edge · Simple :: Not-known",one:"Structured process meets improvisation, at the moment of action.",why:"When the rules stop fitting, fear goes across; options simple enough to act on have to come back.",rel:["S","N","now"],
+ back:[["What it is","The edge between the Simple and the Not-known, below the plan-to-action line. It is the difference between following predefined work instructions in a known context and improvising, guided by principles, when the context is no longer known. Both happen at or very close to the moment of action."],
+ ["What passes across","From the Simple: its fears, arising from loss of certainty or from responses that do not match its expectations. From the Not-known: options certain enough for the Simple to act on."],
+ ["Why it is called panic","Because this crossing happens in real time, it carries an emotional load that the mirror exchange at the edge of uncertainty does not. The habitual responses are fight, flight or freeze. The name is a warning: without preparation, this is where people panic."],
+ ["How to bridge it","Checklists are the classic bridge. Graves uses an aircraft checklist: the routine side keeps the work on the certain side; the emergency side, read when fear arises, gives a few options that can be acted on simply and walks the situation back across. Beyond that sit the chaos checklist (a few principles) and the discipline to stay calm long enough to see what is actually happening."],
+ ["The thinking behind it","Graves points to the symmetry with the edge of uncertainty: questions and answers go back and forth in both cases. The difference is time. At the edge of panic there is none, so the exchange has to be prepared in advance, as cards, drills and principles."],
+ ["On the parade","At 23:10 the routine breaks: smoke in the stairwell, residents in the corridor. The emergency card hands back a few options that can be acted on simply, and the night returns, step by step, to the certain side."],
+ ["The lender’s view","Ask to see what the out-of-hours team will read at 23:10. If the answer is the full procedures manual, the bridge is missing."],
+ ["Common mistakes","No emergency or chaos checklist. Reading the rulebook louder. Improvising the basics that should have been on a card."],
+ ["Ask","What is on the card the out-of-hours team will read at 23:10?"]]},
+now:{t:"NOW",kind:"The moment of action",one:"The point where a decision becomes an action. Everything real happens here.",why:"The whole frame is organised around how far each issue is from this moment.",rel:["green","bda","panic"],
+ back:[["What it is","The bottom of the time axis: the moment at which a decision must be expressed in action. Graves sometimes draws it as NOW!, and in the 2019 reframe as a band rather than a point, because action takes time and has its own recursion."],
+ ["Why it matters","Graves’s decision-physics: what happens at the point of action is real, and everything else is abstraction. Before it, decisions may be no more than statements of intent. At it, decisions are emotional and fast, made on belief or on faith, not on analysis."],
+ ["What is available at NOW","Only two domains: the Simple (rules) and the Not-known (principles). The Complicated and the Ambiguous need time, so they are squeezed out as NOW approaches. Graves also notes that people can hold only about five to nine options in real time, so anything meant for use at NOW must fit inside that limit."],
+ ["How to prepare for it","Decide in advance what will be in hand at NOW: the action and emergency checklists, the chaos principles, and the people with the skill to use them."],
+ ["On the parade","23:10 on the night of the fire. Nothing prepared after that minute arrives in time."],
+ ["The lender’s view","Judge preparation for NOW, not just the quality of the plan before it."],
+ ["Ask","What will we actually have in hand at NOW?"]]},
+bda:{t:"Before, during, after",kind:"The time axis, reframed (2019)",one:"Before is a future that can still change; during is action; after can only be learned from.",why:"Graves’s 2019 reframe replaced the old ‘(indefinite future)’ label, which many readers found back to front.",rel:["now","green","tscale"],
+ back:[["What it is","In the 2019 reframe the vertical axis reads as time increasing downwards. At the top is the indefinite before; then the before region (planning); the during region around the moment of action; and below NOW the after region, ending in the indefinite after."],
+ ["Why Graves changed it","The earlier frame had ‘(indefinite future)’ at the top and NOW at the bottom, which many people read the wrong way round. Naming before, during and after made the flow of time explicit and gave the past a place on the frame."],
+ ["Before","The changeable future. Plans, analysis and experiments live here. Everything in it is still intent."],
+ ["During","The band around the edge of commitment and NOW, where rules and principles carry the work."],
+ ["After","The unchangeable past. Graves’s point, which this diagram writes under the frame, is that what is after can only be learned from. Reviews, after-action reviews and lessons-learned belong here; they feed the next before."],
+ ["On the parade","Before: the appointment brief and the thirty-day plan. During: the night of the fire. After: the morning review, whose lessons become new lines on the action and preventive checklists."],
+ ["Common mistakes","Treating the after as if it were still an option, and relitigating it. Skipping the after altogether, so nothing is learned."],
+ ["Ask","What did the last after teach us, and is it in the next before?"]]},
+tscale:{t:"Months · weeks · days · hours · minutes",kind:"Time scale · this treatise’s addition",one:"A rough scale for the vertical axis: how much time is left before action.",why:"Graves leaves the scale arbitrary. This treatise adds rough marks so the parade’s issues can be placed consistently.",rel:["green","now","bda"],
+ back:[["What it is","Graves draws the vertical axis without units: time available before a decision must become action, from far off down to NOW. This treatise adds rough marks, months to minutes, compressed as they approach NOW."],
+ ["Why it matters","It answers Graves’s second quick question: how much time do we have? The answer decides which tactics are possible. A valuation needs weeks; a fire gives minutes."],
+ ["How to read it","The scale is relative to the decision, not to the calendar. The same issue can sit at months on day one and at hours by month five. Move issues down the frame as their deadlines approach."],
+ ["On the parade","Planning for the upper floors sits at months; the credit committee paper at days; the escape of water at hours; the fire at minutes."],
+ ["Ask","When does this have to work?"]]},
+cscale:{t:"Certain to increasingly uncertain",kind:"Certainty scale · the horizontal axis",one:"From what repeats exactly to what may never repeat.",why:"It answers Graves’s first quick question: is it simple, or not?",rel:["red","C","A"],
+ back:[["What it is","The horizontal axis runs from certain (absolute sameness) to increasingly uncertain (absolute uniqueness). This treatise marks four points along it: repeats exactly, mostly repeats, varies with context, may never repeat."],
+ ["The thinking behind it","Graves says the axis is really about modality: the kind of reasoning that fits. On the left, reasoning is two-valued (it is, or it is not). On the right, it is about possibility and necessity (it might, it should, it could). He also distinguishes perfect repeatability, which exists only at the far left, from effective repeatability: getting the same result despite variation, often by doing different things."],
+ ["How to read it","Ask how much the situation varies from one occurrence to the next, for the person doing it. Repeats exactly: a rule will do. Mostly repeats: a rule with checks. Varies with context: a guideline and judgement. May never repeat: a principle and skill."],
+ ["On the parade","The rent demand to a regular payer repeats exactly; the arrears call with the nail bar varies with context; the director arriving with a locksmith may never repeat."],
+ ["Ask","How much will this vary next time, and for whom?"]]}};
+var XMAP=[[/^(complicated|evaluate algorithms|complicated but controllable)$/,"C"],[/^(ambiguous|experiment guidelines|ambiguous but actionable)$/,"A"],[/^(simple|enact rules|simple and straightforward)$/,"S"],[/^(not-known|not known|explore principles|none-of-the-above)$/,"N"],
+ [/^boundary of effective certainty$/,"red"],[/^(plan action|plan|transition from|plan to action|transition from plan to action)$/,"green"],
+ [/^edge of (commitment|action)$/,"commit"],[/^edge of uncertainty$/,"unc"],[/^edge of innovation$/,"inno"],[/^edge of panic$/,"panic"],[/^now$/,"now"],
+ [/^(before|during|after|indefinite before|indefinite after|indefinite future|indefinite|future|what is after can only be learned from)$/,"bda"],
+ [/^(months|weeks|days|hours|minutes)$/,"tscale"],[/^(certain|increasingly uncertain|increasingly|uncertain|repeats exactly|mostly repeats|varies with context|may never repeat)$/,"cscale"]];
+function nx(t){return String(t||"").replace(/[︎▸▶·…!()“”"]/g," ").replace(/\s+/g," ").trim().toLowerCase()}
+function xkey(t){var s=nx(t);for(var i=0;i<XMAP.length;i++)if(XMAP[i][0].test(s))return XMAP[i][1];return null}
+function xcardHTML(k){var x=XPL[k];return '<div class="gin"><div class="gface gfront"><div class="gtop"><span class="gkind">'+x.kind+'</span><button type="button" class="gx" aria-label="Close">✕</button></div>'+
+ '<h4 class="gword xword">'+x.t+'</h4><p class="glit">'+x.one+'</p><p class="gshort">'+x.why+'</p>'+
+ '<div class="gbtns"><button type="button" class="chip play gturn">Turn for the full explainer ↻</button></div>'+
+ (x.rel?'<div class="xrels"><span>Related</span>'+x.rel.map(function(r){return '<button type="button" class="chip xrel" data-x="'+r+'">'+XPL[r].t+'</button>'}).join("")+'</div>':'')+'</div>'+
+ '<div class="gface gback"><div class="gtop"><span class="gkind">'+x.t+' · what, why, how</span><button type="button" class="gx" aria-label="Close">✕</button></div><dl>'+x.back.map(function(b){return '<dt>'+b[0]+'</dt><dd>'+b[1]+'</dd>'}).join("")+'</dl>'+
+ '<div class="gbtns"><button type="button" class="chip gturn">↺ Turn back</button>'+(x.rel?x.rel.map(function(r){return '<button type="button" class="chip xrel" data-x="'+r+'">'+XPL[r].t+' →</button>'}).join(""):'')+'</div></div></div>'}
+function openX(k,from,host){if(!XPL[k])return;openCard(xcardHTML(k),XPL[k].t,from,host,"xcard")}
+
+/* Explain mode: outlines every explainable label, line and heading in the diagram; a tap opens its card */
+function svgRect(svg,el){var b=el.getBoundingClientRect(),m=svg.getScreenCTM();if(!m||!b.width)return null;var i=m.inverse(),p1=svg.createSVGPoint(),p2=svg.createSVGPoint();p1.x=b.left;p1.y=b.top;p2.x=b.right;p2.y=b.bottom;p1=p1.matrixTransform(i);p2=p2.matrixTransform(i);return {x:p1.x,y:p1.y,w:p2.x-p1.x,h:p2.y-p1.y}}
+function xScan(svg){var old=svg.querySelector(".xlay");if(old)old.remove();if(!svg.classList.contains("xmode"))return;var lay=S("g",{class:"xlay"});var items=[],done=new Set();
+ function add(el,k,pad){var r=svgRect(svg,el);if(!r||r.w<2&&r.h<2)return;pad=pad||4;items.push([r.x-pad,r.y-pad,r.w+2*pad,r.h+2*pad,k])}
+ $$("g",svg).forEach(function(g){if(g.closest(".xlay,.gwm,.node"))return;var ts=[].slice.call(g.children).filter(function(c){return c.tagName==="text"});if(ts.length!==2||!g.querySelector(":scope > rect"))return;var k=xkey(ts.map(function(t){return t.textContent}).join(" "));if(k){add(g,k,2);ts.forEach(function(t){done.add(t)})}});
+ $$("text",svg).forEach(function(t){if(done.has(t)||t.closest(".xlay,.gwm,.node,.gcard"))return;var pb=t.parentNode;if(pb&&pb.classList&&pb.classList.contains("dbadge")){if(done.has(pb))return;var kb=null;[].slice.call(pb.querySelectorAll("text")).some(function(x){kb=xkey(x.textContent);return kb});if(kb){done.add(pb);add(pb,kb,3)}return}var k=xkey(t.textContent);if(!k){var g=t.parentNode;if(g&&g.classList&&g.classList.contains("ftag"))k=xkey(g.textContent)}if(k){var tg=t.parentNode;if(tg&&tg.classList&&tg.classList.contains("ftag")){if(done.has(tg))return;done.add(tg);add(tg,k,2)}else add(t,k,4)}});
+ $$(".sframe > line",svg).forEach(function(l){var st=l.getAttribute("stroke"),w=+l.getAttribute("stroke-width");if(w<2||w>3)return;var x1=+l.getAttribute("x1"),x2=+l.getAttribute("x2"),y1=+l.getAttribute("y1"),y2=+l.getAttribute("y2");if(st===REDE)items.push([x1-8,Math.min(y1,y2)+70,16,Math.abs(y2-y1)-140,"red"]);else if(st==="#8FC79A")items.push([Math.min(x1,x2)+30,y1-8,Math.abs(x2-x1)-260,16,"green"])});
+ items.forEach(function(it){if(it[2]<4||it[3]<4)return;var r=S("rect",{x:it[0],y:it[1],width:it[2],height:it[3],rx:Math.min(10,it[3]/2),class:"xh","data-x":it[4],tabindex:"0",role:"button","aria-label":XPL[it[4]].t+": open the explainer card"},lay);
+  function go(e){e.stopPropagation();e.preventDefault();openX(it[4],r,svg.parentNode);var pn=svg.closest(".dgrid").querySelector(".panelx");if(pn&&pn.id){var x=XPL[it[4]];pane(pn.id,"Explain mode · "+x.kind,x.t,x.one,[["Why it is there",x.why],["The card","Turn it for what it is, why it is there, how to use it, the thinking behind it, the parade, the lender’s view, common mistakes and a question to ask."]])}}r.addEventListener("click",go);r.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")go(e)})});
+ svg.appendChild(lay)}
+(function(){$$(".ibox").forEach(function(box){var svg=box.querySelector(".dgrid svg.dsvg");if(!svg)return;var hasFrame=svg.querySelector(".sframe")||svg.id==="frSvg"||svg.id==="ckSvg"||svg.id==="msSvg";if(!hasFrame)return;
+  var acts=box.querySelector(".iacts");if(!acts)return;var b=H("button",{type:"button",class:"chip ib xbtn",title:"Explain every label","aria-label":"Explain mode: tap any label in the diagram","aria-pressed":"false"},'<span class="ico">i</span><span class="itx">Explain</span>');acts.insertBefore(b,acts.firstChild);
+  var note=H("div",{class:"xnote"},'<b>Explain mode.</b> Every outlined label, line and heading in the diagram opens a turning card. <button type="button" class="chip xall">What is this diagram?</button>');var grid=box.querySelector(".dgrid");box.insertBefore(note,grid);
+  note.querySelector(".xall").addEventListener("click",function(e){e.stopPropagation();openX("frame",this,svg.parentNode)});
+  function set(on){svg.classList.toggle("xmode",on);box.classList.toggle("xon",on);b.classList.toggle("lit",on);b.setAttribute("aria-pressed",on?"true":"false");xScan(svg)}
+  b.addEventListener("click",function(){set(!svg.classList.contains("xmode"))});
+  var tm=null;new MutationObserver(function(ms){if(ms.every(function(m){return m.target.closest&&m.target.closest(".xlay")||[].slice.call(m.addedNodes).concat([].slice.call(m.removedNodes)).every(function(n){return n.nodeType===1&&n.classList&&(n.classList.contains("xlay")||n.classList.contains("gcard"))})}))return;clearTimeout(tm);tm=setTimeout(function(){xScan(svg)},140)}).observe(svg,{childList:true,subtree:true});
+  window.addEventListener("resize",function(){clearTimeout(tm);tm=setTimeout(function(){xScan(svg)},200)});
+  if(svg.id==="frSvg")setTimeout(function(){set(true)},50)})})();
 
 /* ================= ATLAS ================= */
 (function(){var g=$("#atlasGrid");if(!g)return;var q=$("#atlasQ"),dk=$("#atlasDeck");H("option",{value:""},"All decks ("+CARDS.length+")",dk);Object.keys(DECKS).forEach(function(k){H("option",{value:k},DECKS[k]+" ("+CARDS.filter(function(c){return c.d===k}).length+")",dk)});
